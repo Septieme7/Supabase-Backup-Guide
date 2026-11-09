@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guide : Sauvegarde Supabase</title>
+    
+    <!-- SEO & Favicons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="icon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="icon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="icon/favicon-16x16.png">
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="theme-color" content="#09090b">
+    <meta name="description" content="Guide complet et détaillé pour sauvegarder sa base de données Supabase.">
+
+    <style>
+        :root {
+            --bg-color: #09090b;
+            --text-color: #e4e4e7;
+            --text-muted: #a1a1aa;
+            --card-bg: #18181b;
+            --border-color: #27272a;
+            --accent-color: #06b6d4;
+            --accent-hover: #22d3ee;
+            --code-bg: #000000;
+            --code-color: #10b981;
+            --shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        body.light-theme {
+            --bg-color: #f8fafc;
+            --text-color: #0f172a;
+            --text-muted: #475569;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --accent-color: #0284c7;
+            --accent-hover: #0369a1;
+            --code-bg: #f1f5f9;
+            --code-color: #0f172a;
+            --shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            position: sticky;
+            top: 0;
+            background-color: rgba(var(--bg-color), 0.9);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+
+        .header-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--accent-color);
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            transform: translateY(-2px);
+        }
+
+        main {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+            flex: 1; 
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, var(--accent-color), #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 40px;
+            font-size: 1.1rem;
+        }
+
+        .step-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .step-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px -10px rgba(6, 182, 212, 0.15);
+            border-color: var(--accent-color);
+        }
+
+        .step-number {
+            position: absolute;
+            top: -15px;
+            right: -10px;
+            font-size: 8rem;
+            font-weight: 900;
+            color: var(--border-color);
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .step-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            color: var(--accent-color);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        h3 {
+            margin-top: 20px;
+            color: var(--accent-color);
+            font-size: 1.2rem;
+        }
+
+        p {
+            margin-bottom: 15px;
+            color: var(--text-color);
+        }
+
+        ul {
+            margin-bottom: 15px;
+            padding-left: 20px;
+            color: var(--text-muted);
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+        a:hover { text-decoration: underline; }
+
+        .img-container {
+            margin: 20px 0;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            cursor: zoom-in;
+        }
+
+        .img-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+            transition: transform 0.3s ease;
+        }
+        
+        .img-container:hover img {
+            transform: scale(1.02);
+        }
+
+        .code-block {
+            background-color: var(--code-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            position: relative;
+            overflow-x: auto;
+        }
+
+        code {
+            font-family: 'Courier New', Courier, monospace;
+            color: var(--code-color);
+            font-size: 0.9rem;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: background 0.2s;
+        }
+        
+        body.light-theme .copy-btn { color: #000; background: rgba(0,0,0,0.1); }
+        
+        .copy-btn:hover { background: var(--accent-color); color: #fff !important; }
+
+        .alert {
+            background-color: rgba(6, 182, 212, 0.1);
+            border-left: 4px solid var(--accent-color);
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            margin: 15px 0;
+            color: var(--text-color);
+            font-size: 0.95rem;
+        }
+
+        .warning {
+            background-color: rgba(245, 158, 11, 0.1);
+            border-left-color: #f59e0b;
+        }
+
+        #backToTop {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: var(--accent-color);
+            color: #fff;
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.4);
+            transition: transform 0.2s, background-color 0.2s;
+            z-index: 1000;
+        }
+
+        #backToTop:hover {
+            transform: scale(1.1) translateY(-5px);
+            background-color: var(--accent-hover);
+        }
+
+        .lightbox {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .lightbox.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        .lightbox-content {
+            max-width: 90%;
+            max-height: 90%;
+            border-radius: 8px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+        }
+
+        .lightbox.show .lightbox-content {
+            transform: scale(1);
+        }
+
+        .close-lightbox {
+            position: absolute;
+            top: 20px;
+            right: 35px;
+            color: #fff;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+            user-select: none;
+        }
+
+        .close-lightbox:hover {
+            color: var(--accent-color);
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: auto;
+        }
+        
+        footer a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: bold;
+        }
+        footer a:hover { text-decoration: underline; }
+
+        @media (max-width: 600px) {
+            h1 { font-size: 1.8rem; }
+            .step-card { padding: 20px; }
+            .step-number { font-size: 5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-title">📦 Supabase Backup Guide</div>
+        <div class="controls">
+            <button class="btn" id="langToggle" onclick="toggleLang()">🇬🇧 EN</button>
+            <button class="btn" id="themeToggle" onclick="toggleTheme()">☀️ Clair</button>
+        </div>
+    </header>
+
+    <main>
+        <h1 data-i18n="title">Sauvegarde de la Base de Données</h1>
+        <p class="subtitle" data-i18n="subtitle">Guide complet et détaillé pour sauvegarder vos données Supabase sur votre ordinateur.</p>
+
+        <!-- BLOC PRÉREQUIS -->
+        <div class="step-card" style="border-color: #f59e0b;">
+            <div class="step-content">
+                <h2 data-i18n="req_title" style="color: #f59e0b;">📋 Prérequis avant de commencer</h2>
+                <p data-i18n="req_desc">Pour que la sauvegarde fonctionne correctement, vous devez préparer votre environnement de travail avec ces outils :</p>
+                
+                <ul>
+                    <li>
+                        <strong><a href="https://nodejs.org/" target="_blank" rel="noopener">Node.js (Version LTS)</a></strong> 
+                        <span data-i18n="req_node">- Indispensable pour exécuter la commande <code>npx</code>. C'est le moteur qui va faire tourner l'outil de sauvegarde Supabase sur votre machine.</span>
+                    </li>
+                    <li>
+                        <strong><a href="https://www.docker.com/products/docker-desktop/" target="_blank" rel="noopener">Docker Desktop</a></strong> 
+                        <span data-i18n="req_docker">- La CLI Supabase utilise Docker pour télécharger et exécuter temporairement une version miniature de PostgreSQL. Cela permet d'extraire les données de manière 100% sécurisée et isolée. Docker doit être installé et lancé (en arrière-plan).</span>
+                    </li>
+                    <li>
+                        <strong><a href="https://supabase.com/docs/guides/cli" target="_blank" rel="noopener">Supabase CLI</a></strong> 
+                        <span data-i18n="req_cli">- L'outil en ligne de commande officiel. Nous allons l'utiliser via <code>npx</code> (qui le télécharge temporairement) plutôt que de l'installer globalement sur votre système.</span>
+                    </li>
+                </ul>
+                <div class="alert">
+                    💡 <strong data-i18n="req_tip_title">Astuce :</strong> 
+                    <span data-i18n="req_tip">Ouvrez votre terminal à la racine de votre projet (là où se trouve votre fichier <code>package.json</code>) avant de lancer les commandes. Assurez-vous que Docker Desktop affiche bien "Engine running" en bas à gauche.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ÉTAPE 1 -->
+        <div class="step-card">
+            <div class="step-number">1</div>
+            <div class="step-content">
+                <h2 data-i18n="step1_title">🔑 Vérifier les droits "Owner"</h2>
+                <p data-i18n="step1_desc">La sauvegarde nécessite d'accéder aux paramètres les plus sensibles de votre projet (comme les clés d'API). Vous devez impérativement être le propriétaire (Owner) de l'organisation Supabase.</p>
+                <ul>
+                    <li data-i18n="step1_li1">Dans votre Dashboard Supabase, cliquez sur le nom de votre organisation (en haut à gauche) puis sur l'onglet <strong>"Team" (Équipe)</strong>.</li>
+                    <li data-i18n="step1_li2">Repérez votre adresse e-mail dans la liste des membres.</li>
+                    <li data-i18n="step1_li3">Vérifiez que la colonne <strong>"ROLE"</strong> affiche bien <strong>"Owner"</strong>. Si c'est "Developer" ou "Read-Only", la commande de sauvegarde échouera.</li>
+                </ul>
+                <div class="img-container">
+                    <img src="img/step1.webp" alt="Vérification des droits Owner" onclick="openLightbox(this)">
+                </div>
+                <div class="img-container">
+                    <img src="img/step2.webp" alt="Détail des rôles" onclick="openLightbox(this)">
+                </div>
+            </div>
+        </div>
+
+        <!-- ÉTAPE 2 -->
+        <div class="step-card">
+            <div class="step-number">2</div>
+            <div class="step-content">
+                <h2 data-i18n="step2_title">🐳 Lancer Docker Desktop</h2>
+                <p data-i18n="step2_desc">La CLI Supabase a besoin de Docker pour fonctionner. Si Docker n'est pas lancé, vous obtiendrez une erreur "Connection refused" ou "Daemon not running".</p>
+                <ul>
+                    <li data-i18n="step2_li1"><strong>Installez Docker Desktop</strong> depuis le site officiel si ce n'est pas déjà fait.</li>
+                    <li data-i18n="step2_li2">Lancez l'application Docker Desktop depuis votre bureau ou le menu Démarrer.</li>
+                    <li data-i18n="step2_li3">Attendez que l'icône de la baleine en bas à gauche devienne <strong>verte</strong> et indique "Docker Engine running".</li>
+                </ul>
+                <div class="img-container">
+                    <img src="img/step3.webp" alt="Site Docker" onclick="openLightbox(this)">
+                </div>
+                <div class="img-container">
+                    <img src="img/step4.webp" alt="Application Docker" onclick="openLightbox(this)">
+                </div>
+                <div class="alert warning">
+                    ⚠️ <strong>Important :</strong> <span data-i18n="step2_warn">Ne fermez surtout pas Docker Desktop pendant la durée de la sauvegarde. Il consomme de la mémoire, mais c'est nécessaire pour l'opération.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ÉTAPE 3 -->
+        <div class="step-card">
+            <div class="step-number">3</div>
+            <div class="step-content">
+                <h2 data-i18n="step3_title">🔗 Récupérer la Connection String</h2>
+                <p data-i18n="step3_desc">Il vous faut l'adresse de connexion sécurisée de votre base de données. Sur le Dashboard Supabase de votre projet, cliquez sur le gros bouton vert <strong>"Connect"</strong> en haut de la page.</p>
+                <div class="img-container">
+                    <img src="img/step5.webp" alt="Bouton Connect" onclick="openLightbox(this)">
+                </div>
+                
+                <h3 data-i18n="step3_ipv6">Méthode A : Direct Connection (IPv6)</h3>
+                <p data-i18n="step3_ipv6_desc">C'est l'onglet <strong>"Direct"</strong>. Cette connexion utilise le protocole récent IPv6. Si votre ordinateur ou votre box internet n'est pas configuré pour l'IPv6, vous aurez une erreur de réseau. Dans ce cas, passez à la Méthode B.</p>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyText(this)">Copier</button>
+                    <code>postgresql://postgres:[MOT_DE_PASSE]@db.[PROJECT_REF].supabase.co:5432/postgres</code>
+                </div>
+
+                <h3 data-i18n="step3_ipv4">Méthode B : Session Pooler (IPv4)</h3>
+                <p data-i18n="step3_ipv4_desc">C'est l'onglet <strong>"Session Pooler"</strong>. C'est la méthode la plus fiable, car elle passe par un serveur intermédiaire utilisant l'IPv4, supporté par tous les réseaux.</p>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyText(this)">Copier</button>
+                    <code>postgresql://postgres.[PROJECT_REF]:[MOT_DE_PASSE]@aws-0-[REGION].pooler.supabase.com:5432/postgres</code>
+                </div>
+                <div class="img-container">
+                    <img src="img/step6.webp" alt="Choix de la connexion" onclick="openLightbox(this)">
+                </div>
+                <div class="alert">
+                    💡 <strong>Attention :</strong> <span data-i18n="step3_alert">Remplacez <code>[MOT_DE_PASSE]</code> et <code>[PROJECT_REF]</code> par vos vraies informations. Ne gardez PAS les crochets [ ].</span>
+                </div>
+                <div class="alert" style="background-color: rgba(139, 92, 246, 0.1); border-left-color: #8b5cf6;">
+                    <strong data-i18n="step3_help_title">Comment récupérer ces informations ?</strong>
+                    <ul style="margin-top: 8px; margin-bottom: 0;">
+                        <li><strong data-i18n="step3_help_ref_label">Project Ref :</strong> <span data-i18n="step3_help_ref_desc">C'est l'identifiant unique de votre projet. Vous le trouverez dans l'URL de votre dashboard Supabase : <code>https://supabase.com/dashboard/project/<strong>[PROJECT_REF]</strong></code>.</span></li>
+                        <li><strong data-i18n="step3_help_pwd_label">Mot de passe :</strong> <span data-i18n="step3_help_pwd_desc">Supabase ne l'affiche qu'une seule fois à la création. Si vous l'avez perdu, allez dans <strong>Project Settings > Database</strong>, puis cliquez sur <strong>"Reset database password"</strong>. Copiez le nouveau mot de passe immédiatement.</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- ÉTAPE 4 -->
+        <div class="step-card">
+            <div class="step-number">4</div>
+            <div class="step-content">
+                <h2 data-i18n="step4_title">💾 Lancer la sauvegarde SQL</h2>
+                <p data-i18n="step4_desc">Ouvrez votre terminal (PowerShell, Invite de commande, etc.) à la racine de votre projet et exécutez ces 3 commandes l'une après l'autre. Elles vont créer 3 fichiers .sql dans votre dossier actuel.</p>
+
+                <p><strong data-i18n="step4_schema">1. Structure (Schéma) :</strong> Sauvegarde la création des tables, des index et des clés étrangères.</p>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyText(this)">Copier</button>
+                    <code>npx supabase db dump --db-url "[VOTRE_URL]" -f schema.sql</code>
+                </div>
+
+                <p><strong data-i18n="step4_data">2. Données (Contenu des tables) :</strong> Récupère tous les enregistrements (joueurs, tournois, sponsors, etc.).</p>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyText(this)">Copier</button>
+                    <code>npx supabase db dump --db-url "[VOTRE_URL]" -f data.sql --use-copy --data-only</code>
+                </div>
+
+                <p><strong data-i18n="step4_roles">3. Rôles (Permissions) :</strong> Sauvegarde les droits d'accès et les rôles PostgreSQL.</p>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyText(this)">Copier</button>
+                    <code>npx supabase db dump --db-url "[VOTRE_URL]" -f roles.sql --role-only</code>
+                </div>
+            </div>
+        </div>
+
+        <!-- ÉTAPE 5 -->
+        <div class="step-card">
+            <div class="step-number">5</div>
+            <div class="step-content">
+                <h2 data-i18n="step5_title">📂 Sauvegarder les fichiers (Storage)</h2>
+                <p data-i18n="step5_desc">La base de données ne contient que les liens texte vers vos fichiers. Pour sauvegarder les fichiers physiques (PDF, images, avatars), vous avez deux options :</p>
+                <ul>
+                    <li data-i18n="step5_li1"><strong>Option A (La plus simple) :</strong> Allez sur votre Dashboard Supabase > <strong>Storage</strong>. Cliquez sur les 3 petits points à côté du nom de votre bucket, puis cliquez sur <strong>"Download"</strong>. Un fichier ZIP sera téléchargé.</li>
+                    <li data-i18n="step5_li2"><strong>Option B (Terminal) :</strong> Si vous préférez la ligne de commande, utilisez la commande ci-dessous.</li>
+                </ul>
+                <div class="code-block">
+                    <button class="copy-btn" onclick="copyText(this)">Copier</button>
+                    <code>npx supabase storage cp -r ss://[NOM_DU_BUCKET] ./backup_[NOM_DU_BUCKET] --experimental</code>
+                </div>
+                <div class="alert warning">
+                    ⚠️ <strong>Personnalisation :</strong> <span data-i18n="step5_alert">Remplacez <code>[NOM_DU_BUCKET]</code> par le nom exact de vos dossiers (ex: pdfs, player-avatars, team-logos). Vous devez répéter l'opération pour chaque bucket séparément.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ÉTAPE 6 -->
+        <div class="step-card">
+            <div class="step-number">6</div>
+            <div class="step-content">
+                <h2 data-i18n="step6_title">🔐 Activer et configurer Vault (Sécurité)</h2>
+                <p data-i18n="step6_desc">Si vous utilisez des secrets (clés API) ou des données chiffrées dans votre base, le module <strong>Vault</strong> est indispensable. Il protège ces données sensibles.</p>
+                <ul>
+                    <li data-i18n="step6_li1">Dans le menu de gauche de Supabase, allez dans l'onglet <strong>"Integrations"</strong>.</li>
+                    <li data-i18n="step6_li2">Cherchez le module <strong>"Vault"</strong> et cliquez sur <strong>"Enable"</strong> (ou "Install") pour l'activer.</li>
+                    <li data-i18n="step6_li3">Une fois installé, Supabase génère une clé de chiffrement racine (<strong>Root Key</strong>). Il est impératif de sauvegarder cette clé dans un gestionnaire de mots de passe sécurisé. Sans elle, vous ne pourrez jamais restaurer vos données chiffrées.</li>
+                </ul>
+                <div class="img-container">
+                    <img src="img/step7.webp" alt="Vault Supabase" onclick="openLightbox(this)">
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer>
+        Supabase Backup Guide By <a href="https://github.com/LvSs7" target="_blank" rel="noopener">LvSs7</a>
+    </footer>
+
+    <button id="backToTop" onclick="scrollToTop()">↑</button>
+
+    <div id="lightbox" class="lightbox" onclick="closeLightbox(event)">
+        <span class="close-lightbox" onclick="closeLightbox(event)">&times;</span>
+        <img class="lightbox-content" id="lightbox-img">
+    </div>
+
+    <script>
+        const body = document.body;
+        const themeBtn = document.getElementById('themeToggle');
+        
+        if (localStorage.getItem('theme') === 'light') {
+            body.classList.add('light-theme');
+            themeBtn.innerHTML = '🌙 Sombre';
+        }
+
+        function toggleTheme() {
+            body.classList.toggle('light-theme');
+            if (body.classList.contains('light-theme')) {
+                localStorage.setItem('theme', 'light');
+                themeBtn.innerHTML = '🌙 Sombre';
+            } else {
+                localStorage.setItem('theme', 'dark');
+                themeBtn.innerHTML = '☀️ Clair';
+            }
+        }
+
+        let currentLang = 'fr';
+        const langBtn = document.getElementById('langToggle');
+
+        const translations = {
+            fr: {
+                title: "Sauvegarde de la Base de Données",
+                subtitle: "Guide complet et détaillé pour sauvegarder vos données Supabase sur votre ordinateur.",
+                req_title: "📋 Prérequis avant de commencer",
+                req_desc: "Pour que la sauvegarde fonctionne correctement, vous devez préparer votre environnement de travail avec ces outils :",
+                req_node: "- Indispensable pour exécuter la commande npx. C'est le moteur qui va faire tourner l'outil de sauvegarde Supabase sur votre machine.",
+                req_docker: "- La CLI Supabase utilise Docker pour télécharger et exécuter temporairement une version miniature de PostgreSQL. Cela permet d'extraire les données de manière 100% sécurisée et isolée. Docker doit être installé et lancé (en arrière-plan).",
+                req_cli: "- L'outil en ligne de commande officiel. Nous allons l'utiliser via npx (qui le télécharge temporairement) plutôt que de l'installer globalement sur votre système.",
+                req_tip_title: "Astuce :",
+                req_tip: "Ouvrez votre terminal à la racine de votre projet (là où se trouve votre fichier package.json) avant de lancer les commandes. Assurez-vous que Docker Desktop affiche bien 'Engine running' en bas à gauche.",
+                step1_title: "🔑 Vérifier les droits Owner",
+                step1_desc: "La sauvegarde nécessite d'accéder aux paramètres les plus sensibles de votre projet (comme les clés d'API). Vous devez impérativement être le propriétaire (Owner) de l'organisation Supabase.",
+                step1_li1: "Dans votre Dashboard Supabase, cliquez sur le nom de votre organisation (en haut à gauche) puis sur l'onglet Team (Équipe).",
+                step1_li2: "Repérez votre adresse e-mail dans la liste des membres.",
+                step1_li3: "Vérifiez que la colonne ROLE affiche bien 'Owner'. Si c'est 'Developer' ou 'Read-Only', la commande de sauvegarde échouera.",
+                step2_title: "🐳 Lancer Docker Desktop",
+                step2_desc: "La CLI Supabase a besoin de Docker pour fonctionner. Si Docker n'est pas lancé, vous obtiendrez une erreur 'Connection refused' ou 'Daemon not running'.",
+                step2_li1: "Installez Docker Desktop depuis le site officiel si ce n'est pas déjà fait.",
+                step2_li2: "Lancez l'application Docker Desktop depuis votre bureau ou le menu Démarrer.",
+                step2_li3: "Attendez que l'icône de la baleine en bas à gauche devienne verte et indique 'Docker Engine running'.",
+                step2_warn: "Ne fermez surtout pas Docker Desktop pendant la durée de la sauvegarde. Il consomme de la mémoire, mais c'est nécessaire pour l'opération.",
+                step3_title: "🔗 Récupérer la Connection String",
+                step3_desc: "Il vous faut l'adresse de connexion sécurisée de votre base de données. Sur le Dashboard Supabase de votre projet, cliquez sur le gros bouton vert Connect en haut de la page.",
+                step3_ipv6: "Méthode A : Direct Connection (IPv6)",
+                step3_ipv6_desc: "C'est l'onglet Direct. Cette connexion utilise le protocole récent IPv6. Si votre ordinateur ou votre box internet n'est pas configuré pour l'IPv6, vous aurez une erreur de réseau. Dans ce cas, passez à la Méthode B.",
+                step3_ipv4: "Méthode B : Session Pooler (IPv4)",
+                step3_ipv4_desc: "C'est l'onglet Session Pooler. C'est la méthode la plus fiable, car elle passe par un serveur intermédiaire utilisant l'IPv4, supporté par tous les réseaux.",
+                step3_alert: "Remplacez [MOT_DE_PASSE] et [PROJECT_REF] par vos vraies informations. Ne gardez PAS les crochets [ ].",
+                step3_help_title: "Comment récupérer ces informations ?",
+                step3_help_ref_label: "Project Ref :",
+                step3_help_ref_desc: "C'est l'identifiant unique de votre projet. Vous le trouverez dans l'URL de votre dashboard Supabase : https://supabase.com/dashboard/project/[PROJECT_REF].",
+                step3_help_pwd_label: "Mot de passe :",
+                step3_help_pwd_desc: "Supabase ne l'affiche qu'une seule fois à la création. Si vous l'avez perdu, allez dans Project Settings > Database, puis cliquez sur 'Reset database password'. Copiez le nouveau mot de passe immédiatement.",
+                step4_title: "💾 Lancer la sauvegarde SQL",
+                step4_desc: "Ouvrez votre terminal (PowerShell, Invite de commande, etc.) à la racine de votre projet et exécutez ces 3 commandes l'une après l'autre. Elles vont créer 3 fichiers .sql dans votre dossier actuel.",
+                step4_schema: "1. Structure (Schéma) : Sauvegarde la création des tables, des index et des clés étrangères.",
+                step4_data: "2. Données (Contenu des tables) : Récupère tous les enregistrements (joueurs, tournois, sponsors, etc.).",
+                step4_roles: "3. Rôles (Permissions) : Sauvegarde les droits d'accès et les rôles PostgreSQL.",
+                step5_title: "📂 Sauvegarder les fichiers (Storage)",
+                step5_desc: "La base de données ne contient que les liens texte vers vos fichiers. Pour sauvegarder les fichiers physiques (PDF, images, avatars), vous avez deux options :",
+                step5_li1: "Option A (La plus simple) : Allez sur votre Dashboard Supabase > Storage. Cliquez sur les 3 petits points à côté du nom de votre bucket, puis cliquez sur 'Download'. Un fichier ZIP sera téléchargé.",
+                step5_li2: "Option B (Terminal) : Si vous préférez la ligne de commande, utilisez la commande ci-dessous.",
+                step5_alert: "Remplacez [NOM_DU_BUCKET] par le nom exact de vos dossiers (ex: pdfs, player-avatars, team-logos). Vous devez répéter l'opération pour chaque bucket séparément.",
+                step6_title: "🔐 Activer et configurer Vault (Sécurité)",
+                step6_desc: "Si vous utilisez des secrets (clés API) ou des données chiffrées dans votre base, le module Vault est indispensable. Il protège ces données sensibles.",
+                step6_li1: "Dans le menu de gauche de Supabase, allez dans l'onglet Integrations.",
+                step6_li2: "Cherchez le module Vault et cliquez sur 'Enable' (ou 'Install') pour l'activer.",
+                step6_li3: "Une fois installé, Supabase génère une clé de chiffrement racine (Root Key). Il est impératif de sauvegarder cette clé dans un gestionnaire de mots de passe sécurisé. Sans elle, vous ne pourrez jamais restaurer vos données chiffrées."
+            },
+            en: {
+                title: "Database Backup Guide",
+                subtitle: "Complete and detailed guide to backup your Supabase data to your computer.",
+                req_title: "📋 Prerequisites before starting",
+                req_desc: "For the backup to work properly, you must prepare your work environment with these tools:",
+                req_node: "- Essential to run the npx command. It is the engine that will run the Supabase backup tool on your machine.",
+                req_docker: "- Supabase CLI uses Docker to download and temporarily run a miniature version of PostgreSQL. This allows extracting data in a 100% secure and isolated way. Docker must be installed and running (in the background).",
+                req_cli: "- The official command-line tool. We will use it via npx (which downloads it temporarily) rather than installing it globally on your system.",
+                req_tip_title: "Tip:",
+                req_tip: "Open your terminal at the root of your project (where your package.json file is) before running the commands. Make sure Docker Desktop shows 'Engine running' at the bottom left.",
+                step1_title: "🔑 Check Owner rights",
+                step1_desc: "The backup requires access to the most sensitive settings of your project (like API keys). You must absolutely be the owner (Owner) of the Supabase organization.",
+                step1_li1: "In your Supabase Dashboard, click on your organization name (top left) then on the Team tab.",
+                step1_li2: "Locate your email address in the list of members.",
+                step1_li3: "Check that the ROLE column shows 'Owner'. If it's 'Developer' or 'Read-Only', the backup command will fail.",
+                step2_title: "🐳 Run Docker Desktop",
+                step2_desc: "Supabase CLI needs Docker to work. If Docker is not running, you will get a 'Connection refused' or 'Daemon not running' error.",
+                step2_li1: "Install Docker Desktop from the official website if you haven't already.",
+                step2_li2: "Launch the Docker Desktop application from your desktop or Start menu.",
+                step2_li3: "Wait for the whale icon at the bottom left to turn green and show 'Docker Engine running'.",
+                step2_warn: "Do not close Docker Desktop during the backup. It uses memory, but it is necessary for the operation.",
+                step3_title: "🔗 Get the Connection String",
+                step3_desc: "You need the secure connection address of your database. On your project's Supabase Dashboard, click the big green Connect button at the top of the page.",
+                step3_ipv6: "Method A: Direct Connection (IPv6)",
+                step3_ipv6_desc: "This is the Direct tab. This connection uses the recent IPv6 protocol. If your computer or internet box is not configured for IPv6, you will get a network error. In this case, switch to Method B.",
+                step3_ipv4: "Method B: Session Pooler (IPv4)",
+                step3_ipv4_desc: "This is the Session Pooler tab. It is the most reliable method, as it goes through an intermediate server using IPv4, supported by all networks.",
+                step3_alert: "Replace [MOT_DE_PASSE] and [PROJECT_REF] with your real information. Do NOT keep the brackets [ ].",
+                step3_help_title: "How to retrieve this information?",
+                step3_help_ref_label: "Project Ref:",
+                step3_help_ref_desc: "This is the unique identifier of your project. You can find it in the URL of your Supabase dashboard: https://supabase.com/dashboard/project/[PROJECT_REF].",
+                step3_help_pwd_label: "Password:",
+                step3_help_pwd_desc: "Supabase only shows it once upon creation. If you lost it, go to Project Settings > Database, then click 'Reset database password'. Copy the new password immediately.",
+                step4_title: "💾 Run SQL Backup",
+                step4_desc: "Open your terminal (PowerShell, Command Prompt, etc.) at the root of your project and run these 3 commands one after the other. They will create 3 .sql files in your current folder.",
+                step4_schema: "1. Structure (Schema): Saves the creation of tables, indexes, and foreign keys.",
+                step4_data: "2. Data (Table contents): Retrieves all records (players, tournaments, sponsors, etc.).",
+                step4_roles: "3. Roles (Permissions): Saves access rights and PostgreSQL roles.",
+                step5_title: "📂 Backup files (Storage)",
+                step5_desc: "The database only contains text links to your files. To backup physical files (PDF, images, avatars), you have two options:",
+                step5_li1: "Option A (Simplest): Go to your Supabase Dashboard > Storage. Click the 3 dots next to your bucket name, then click 'Download'. A ZIP file will be downloaded.",
+                step5_li2: "Option B (Terminal): If you prefer the command line, use the command below.",
+                step5_alert: "Replace [NOM_DU_BUCKET] with the exact name of your folders (e.g., pdfs, player-avatars, team-logos). You must repeat the operation for each bucket separately.",
+                step6_title: "🔐 Enable and configure Vault (Security)",
+                step6_desc: "If you use secrets (API keys) or encrypted data in your database, the Vault module is essential. It protects this sensitive data.",
+                step6_li1: "In the left menu of Supabase, go to the Integrations tab.",
+                step6_li2: "Search for the Vault module and click 'Enable' (or 'Install') to activate it.",
+                step6_li3: "Once installed, Supabase generates a root encryption key (Root Key). It is imperative to save this key in a secure password manager. Without it, you will never be able to restore your encrypted data."
+            }
+        };
+
+        function toggleLang() {
+            currentLang = currentLang === 'fr' ? 'en' : 'fr';
+            langBtn.innerHTML = currentLang === 'fr' ? '🇬🇧 EN' : '🇫🇷 FR';
+            
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[currentLang][key]) {
+                    el.innerHTML = translations[currentLang][key];
+                }
+            });
+        }
+
+        const backToTopBtn = document.getElementById("backToTop");
+
+        window.onscroll = function() {
+            if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                backToTopBtn.style.display = "flex";
+            } else {
+                backToTopBtn.style.display = "none";
+            }
+        };
+
+        function scrollToTop() {
+            window.scrollTo({top: 0, behavior: 'smooth'});
+        }
+
+        function copyText(btn) {
+            const codeBlock = btn.nextElementSibling;
+            const textToCopy = codeBlock.innerText;
+            
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const originalText = btn.innerText;
+                btn.innerText = "Copié !";
+                btn.style.backgroundColor = "#10b981";
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.backgroundColor = "";
+                }, 2000);
+            });
+        }
+
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+
+        function openLightbox(img) {
+            lightbox.classList.add('show');
+            lightboxImg.src = img.src;
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeLightbox(event) {
+            if (event && event.target === lightboxImg) return;
+            
+            lightbox.classList.remove('show');
+            document.body.style.overflow = 'auto';
+            
+            setTimeout(() => {
+                lightboxImg.src = '';
+            }, 300);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && lightbox.classList.contains('show')) {
+                closeLightbox();
+            }
+        });
+    </script>
+</body>
+</html>

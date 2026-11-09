@@ -1,0 +1,20 @@
+# --- Système d'exploitation ---
+.DS_Store
+Thumbs.db
+
+# --- IDE / Éditeurs (VS Code, IntelliJ, etc.) ---
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# --- Logs et erreurs ---
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# --- Fichiers locaux temporaires ---
+.env
+.env.local
+*.tmp
